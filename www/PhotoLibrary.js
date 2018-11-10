@@ -178,6 +178,24 @@ photoLibrary.getThumbnail = function (photoIdOrLibraryItem, success, error, opti
 
 };
 
+photoLibrary.getThumbnailBinary = function (photoIdOrLibraryItem, success, error, options) {
+
+  var photoId = typeof photoIdOrLibraryItem.id !== 'undefined' ? photoIdOrLibraryItem.id : photoIdOrLibraryItem;
+
+  options = getThumbnailOptionsWithDefaults(options);
+
+  cordova.exec(
+    function (data, mimeType) {
+      var blob = dataURItoBlob(data, mimeType);
+      success(blob);
+    },
+    error,
+    'PhotoLibrary',
+    'getThumbnail', [photoId, options]
+  );
+
+};
+
 photoLibrary.getPhoto = function (photoIdOrLibraryItem, success, error, options) {
 
   var photoId = typeof photoIdOrLibraryItem.id !== 'undefined' ? photoIdOrLibraryItem.id : photoIdOrLibraryItem;
@@ -377,6 +395,23 @@ var dataAndMimeTypeToBlob = function (data, mimeType) {
 
   return blob;
 };
+
+var dataURItoBlob =  function(data, mimeType) {
+    // convert base64 to raw binary data held in a string
+    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+    var byteString = atob(data);
+    // write the bytes of the string to an ArrayBuffer
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    // write the ArrayBuffer to a blob, and you're done
+    var bb = new Blob([ab], {
+      type: mimeType
+    });
+    return bb;
+}
 
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
 function fixedEncodeURIComponent(str) {
