@@ -397,8 +397,10 @@ var dataAndMimeTypeToBlob = function (data, mimeType) {
 };
 
 var dataURItoBlob =  function(data, mimeType) {
-    // convert base64 to raw binary data held in a string
-    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+    var byteString = "";
+    if(data && data.data) {
+        data = data.data;
+    }
     var byteString = atob(data);
     // write the bytes of the string to an ArrayBuffer
     var ab = new ArrayBuffer(byteString.length);
