@@ -234,6 +234,24 @@ photoLibrary.getLibraryItem = function (libraryItem, success, error, options) {
 
 };
 
+photoLibrary.getLibraryItemBinary = function (libraryItem, success, error, options) {
+
+  if (!options) {
+    options = {};
+  }
+
+  cordova.exec(
+    function (data, mimeType) {
+      var blob = dataURItoBlob(data, mimeType);
+      success(blob);
+    },
+    error,
+    'PhotoLibrary',
+    'getLibraryItem', [libraryItem, options]
+  );
+
+};
+
 // Call when thumbnails are not longer needed for better performance
 photoLibrary.stopCaching = function (success, error) {
 
