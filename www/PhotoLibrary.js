@@ -12,7 +12,7 @@ var isBrowser = cordova.platformId == 'browser';
 var photoLibrary = {};
 
 // Will start caching for specified size
-photoLibrary.getLibrary = function (success, error, options) {
+photoLibrary.getLibrary = function(success, error, options) {
 
   if (!options) {
     options = {};
@@ -49,7 +49,7 @@ photoLibrary.getLibrary = function (success, error, options) {
   var currentChunkNum = 0;
 
   cordova.exec(
-    function (chunk) {
+    function(chunk) {
       // callbacks arrive from cordova.exec not in order, restoring the order here
       if (chunk.chunkNum === currentChunkNum) {
         // the chunk arrived in order
@@ -72,10 +72,10 @@ photoLibrary.getLibrary = function (success, error, options) {
 
 };
 
-photoLibrary.getAlbums = function (success, error) {
+photoLibrary.getAlbums = function(success, error) {
 
   cordova.exec(
-    function (result) {
+    function(result) {
       success(result);
     },
     error,
@@ -85,10 +85,10 @@ photoLibrary.getAlbums = function (success, error) {
 
 };
 
-photoLibrary.isAuthorized = function (success, error) {
+photoLibrary.isAuthorized = function(success, error) {
 
   cordova.exec(
-    function (result) {
+    function(result) {
       success(result);
     },
     error,
@@ -100,7 +100,7 @@ photoLibrary.isAuthorized = function (success, error) {
 
 // Generates url that can be accessed directly, so it will work more efficiently than getThumbnail, which does base64 encode/decode.
 // If success callback not provided, will return value immediately, but use overload with success as it browser-friendly
-photoLibrary.getThumbnailURL = function (photoIdOrLibraryItem, success, error, options) {
+photoLibrary.getThumbnailURL = function(photoIdOrLibraryItem, success, error, options) {
 
   var photoId = typeof photoIdOrLibraryItem.id !== 'undefined' ? photoIdOrLibraryItem.id : photoIdOrLibraryItem;
 
@@ -131,7 +131,7 @@ photoLibrary.getThumbnailURL = function (photoIdOrLibraryItem, success, error, o
 
 // Generates url that can be accessed directly, so it will work more efficiently than getPhoto, which does base64 encode/decode.
 // If success callback not provided, will return value immediately, but use overload with success as it browser-friendly
-photoLibrary.getPhotoURL = function (photoIdOrLibraryItem, success, error, options) {
+photoLibrary.getPhotoURL = function(photoIdOrLibraryItem, success, error, options) {
 
   var photoId = typeof photoIdOrLibraryItem.id !== 'undefined' ? photoIdOrLibraryItem.id : photoIdOrLibraryItem;
 
@@ -160,14 +160,14 @@ photoLibrary.getPhotoURL = function (photoIdOrLibraryItem, success, error, optio
 };
 
 // Provide same size as when calling getLibrary for better performance
-photoLibrary.getThumbnail = function (photoIdOrLibraryItem, success, error, options) {
+photoLibrary.getThumbnail = function(photoIdOrLibraryItem, success, error, options) {
 
   var photoId = typeof photoIdOrLibraryItem.id !== 'undefined' ? photoIdOrLibraryItem.id : photoIdOrLibraryItem;
 
   options = getThumbnailOptionsWithDefaults(options);
 
   cordova.exec(
-    function (data, mimeType) {
+    function(data, mimeType) {
       var blob = dataAndMimeTypeToBlob(data, mimeType);
       success(blob);
     },
@@ -178,14 +178,14 @@ photoLibrary.getThumbnail = function (photoIdOrLibraryItem, success, error, opti
 
 };
 
-photoLibrary.getThumbnailBinary = function (photoIdOrLibraryItem, success, error, options) {
+photoLibrary.getThumbnailBinary = function(photoIdOrLibraryItem, success, error, options) {
 
   var photoId = typeof photoIdOrLibraryItem.id !== 'undefined' ? photoIdOrLibraryItem.id : photoIdOrLibraryItem;
 
   options = getThumbnailOptionsWithDefaults(options);
 
   cordova.exec(
-    function (data, mimeType) {
+    function(data, mimeType) {
       var blob = dataURItoBlob(data, mimeType);
       success(blob);
     },
@@ -196,7 +196,7 @@ photoLibrary.getThumbnailBinary = function (photoIdOrLibraryItem, success, error
 
 };
 
-photoLibrary.getPhoto = function (photoIdOrLibraryItem, success, error, options) {
+photoLibrary.getPhoto = function(photoIdOrLibraryItem, success, error, options) {
 
   var photoId = typeof photoIdOrLibraryItem.id !== 'undefined' ? photoIdOrLibraryItem.id : photoIdOrLibraryItem;
 
@@ -205,7 +205,7 @@ photoLibrary.getPhoto = function (photoIdOrLibraryItem, success, error, options)
   }
 
   cordova.exec(
-    function (data, mimeType) {
+    function(data, mimeType) {
       var blob = dataAndMimeTypeToBlob(data, mimeType);
       success(blob);
     },
@@ -216,14 +216,14 @@ photoLibrary.getPhoto = function (photoIdOrLibraryItem, success, error, options)
 
 };
 
-photoLibrary.getLibraryItem = function (libraryItem, success, error, options) {
+photoLibrary.getLibraryItem = function(libraryItem, success, error, options) {
 
   if (!options) {
     options = {};
   }
 
   cordova.exec(
-    function (data, mimeType) {
+    function(data, mimeType) {
       var blob = dataAndMimeTypeToBlob(data, mimeType);
       success(blob);
     },
@@ -234,14 +234,14 @@ photoLibrary.getLibraryItem = function (libraryItem, success, error, options) {
 
 };
 
-photoLibrary.getLibraryItemBinary = function (libraryItem, success, error, options) {
+photoLibrary.getLibraryItemBinary = function(libraryItem, success, error, options) {
 
   if (!options) {
     options = {};
   }
 
   cordova.exec(
-    function (data, mimeType) {
+    function(data, mimeType) {
       var blob = dataURItoBlob(data, mimeType);
       success(blob);
     },
@@ -253,7 +253,7 @@ photoLibrary.getLibraryItemBinary = function (libraryItem, success, error, optio
 };
 
 // Call when thumbnails are not longer needed for better performance
-photoLibrary.stopCaching = function (success, error) {
+photoLibrary.stopCaching = function(success, error) {
 
   cordova.exec(
     success,
@@ -265,7 +265,7 @@ photoLibrary.stopCaching = function (success, error) {
 };
 
 // Call when getting errors that begin with 'Permission Denial'
-photoLibrary.requestAuthorization = function (success, error, options) {
+photoLibrary.requestAuthorization = function(success, error, options) {
 
   options = getRequestAuthenticationOptionsWithDefaults(options);
 
@@ -279,7 +279,7 @@ photoLibrary.requestAuthorization = function (success, error, options) {
 };
 
 // url is file url or dataURL
-photoLibrary.saveImage = function (url, album, success, error, options) {
+photoLibrary.saveImage = function(url, album, success, error, options) {
 
   options = getThumbnailOptionsWithDefaults(options);
 
@@ -288,7 +288,7 @@ photoLibrary.saveImage = function (url, album, success, error, options) {
   }
 
   cordova.exec(
-    function (libraryItem) {
+    function(libraryItem) {
       var library = libraryItem ? [libraryItem] : [];
 
       processLibrary(library, function(library) {
@@ -304,7 +304,7 @@ photoLibrary.saveImage = function (url, album, success, error, options) {
 };
 
 // url is file url or dataURL
-photoLibrary.saveVideo = function (url, album, success, error) {
+photoLibrary.saveVideo = function(url, album, success, error) {
 
   if (album.title) {
     album = album.title;
@@ -321,7 +321,7 @@ photoLibrary.saveVideo = function (url, album, success, error) {
 
 module.exports = photoLibrary;
 
-var getThumbnailOptionsWithDefaults = function (options) {
+var getThumbnailOptionsWithDefaults = function(options) {
 
   if (!options) {
     options = {};
@@ -337,7 +337,7 @@ var getThumbnailOptionsWithDefaults = function (options) {
 
 };
 
-var getRequestAuthenticationOptionsWithDefaults = function (options) {
+var getRequestAuthenticationOptionsWithDefaults = function(options) {
 
   if (!options) {
     options = {};
@@ -352,7 +352,7 @@ var getRequestAuthenticationOptionsWithDefaults = function (options) {
 
 };
 
-var processLibrary = function (library, success, options) {
+var processLibrary = function(library, success, options) {
 
   parseDates(library);
 
@@ -360,7 +360,7 @@ var processLibrary = function (library, success, options) {
 
 };
 
-var parseDates = function (library) {
+var parseDates = function(library) {
   var i;
   for (i = 0; i < library.length; i++) {
     var libraryItem = library[i];
@@ -370,11 +370,11 @@ var parseDates = function (library) {
   }
 };
 
-var addUrlsToLibrary = function (library, callback, options) {
+var addUrlsToLibrary = function(library, callback, options) {
 
   var urlsLeft = library.length;
 
-  var handlePhotoURL = function (libraryItem, photoURL) {
+  var handlePhotoURL = function(libraryItem, photoURL) {
     libraryItem.photoURL = photoURL;
     urlsLeft -= 1;
     if (urlsLeft === 0) {
@@ -382,12 +382,12 @@ var addUrlsToLibrary = function (library, callback, options) {
     }
   };
 
-  var handleThumbnailURL = function (libraryItem, thumbnailURL) {
+  var handleThumbnailURL = function(libraryItem, thumbnailURL) {
     libraryItem.thumbnailURL = thumbnailURL;
     photoLibrary.getPhotoURL(libraryItem, handlePhotoURL.bind(null, libraryItem), handleUrlError);
   };
 
-  var handleUrlError = function () {}; // Should never happen
+  var handleUrlError = function() {}; // Should never happen
 
   var i;
   for (i = 0; i < library.length; i++) {
@@ -397,7 +397,7 @@ var addUrlsToLibrary = function (library, callback, options) {
 
 };
 
-var dataAndMimeTypeToBlob = function (data, mimeType) {
+var dataAndMimeTypeToBlob = function(data, mimeType) {
   if (!mimeType && data.data && data.mimeType) {
     // workaround for browser platform cannot return multipart result
     mimeType = data.mimeType;
@@ -414,28 +414,34 @@ var dataAndMimeTypeToBlob = function (data, mimeType) {
   return blob;
 };
 
-var dataURItoBlob =  function(data, mimeType) {
-    var byteString = "";
-    if(data && data.data) {
-        data = data.data;
-    }
+var dataURItoBlob = function(data, mimeType) {
+  var byteString = "";
+  if (data && data.data) {
+    data = data.data;
+  }
+  var ab;
+  console.log("atob:" + (typeof data));
+  if ((typeof data).toLowerCase() === 'object') {
+    ab = data;
+  } else {
     var byteString = atob(data);
     // write the bytes of the string to an ArrayBuffer
     var ab = new ArrayBuffer(byteString.length);
     var ia = new Uint8Array(ab);
     for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
+      ia[i] = byteString.charCodeAt(i);
     }
-    // write the ArrayBuffer to a blob, and you're done
-    var bb = new Blob([ab], {
-      type: mimeType
-    });
-    return bb;
+  }
+  // write the ArrayBuffer to a blob, and you're done
+  var bb = new Blob([ab], {
+    type: mimeType
+  });
+  return bb;
 }
 
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
 function fixedEncodeURIComponent(str) {
-  return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
     return '%' + c.charCodeAt(0).toString(16);
   });
 }
