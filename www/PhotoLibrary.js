@@ -12,13 +12,15 @@ var isBrowser = cordova.platformId == 'browser';
 var photoLibrary = {};
 
 // Will start caching for specified size
-photoLibrary.getLibrary = function(success, error, options) {
+photoLibrary.getLibrary = function(options, success, error) {
 
   if (!options) {
     options = {};
   }
 
   options = {
+    mediaType: options.mediaType || 'image',
+    whereClause: options.whereClause || '',
     thumbnailWidth: options.thumbnailWidth || defaultThumbnailWidth,
     thumbnailHeight: options.thumbnailHeight || defaultThumbnailHeight,
     quality: options.quality || defaultQuality,
@@ -72,7 +74,7 @@ photoLibrary.getLibrary = function(success, error, options) {
 
 };
 
-photoLibrary.getAlbums = function(success, error) {
+photoLibrary.getAlbums = function(options, success, error) {
 
   cordova.exec(
     function(result) {
@@ -80,7 +82,7 @@ photoLibrary.getAlbums = function(success, error) {
     },
     error,
     'PhotoLibrary',
-    'getAlbums', []
+    'getAlbums', [options]
   );
 
 };
