@@ -12,7 +12,7 @@ var isBrowser = cordova.platformId == 'browser';
 var photoLibrary = {};
 
 // Will start caching for specified size
-photoLibrary.getLibrary = function(options, success, error) {
+photoLibrary.getLibrary = function(success, error, options) {
 
   if (!options) {
     options = {};
@@ -74,7 +74,7 @@ photoLibrary.getLibrary = function(options, success, error) {
 
 };
 
-photoLibrary.getAlbums = function(options, success, error) {
+photoLibrary.getAlbums = function(success, error, options) {
 
   cordova.exec(
     function(result) {
