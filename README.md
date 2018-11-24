@@ -5,6 +5,7 @@ We fork and modify this plugin because we need to scan local videos, musics and 
 
 Use examples:
 
+```
 cordova.plugins.photoLibrary.getAlbums(albums => {
     console.log("Albums here........." + JSON.stringify(albums));        
 }, e => {
@@ -12,9 +13,11 @@ cordova.plugins.photoLibrary.getAlbums(albums => {
 }, {
     mediaType: 'image'
 })
+```
 
-The third parameter media can be 'image' or 'video'.
+  The third parameter media can be 'image' or 'video'.
 
+```
 this.photoLibrary.getLibrary({ 
     thumbnailWidth: 100, 
     thumbnailHeight: 100, 
@@ -37,6 +40,7 @@ this.photoLibrary.getLibrary({
         console.log('completed....+++.....');
     }
 });	
+```
 
 The mediaType param can be 'image', 'video', 'music', 'document' in Android, and 'image', 'video' in iOS.
 Maybe you need to modify your local @ionic-native/photo-library, or you can not compile it.
