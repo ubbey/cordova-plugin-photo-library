@@ -378,7 +378,7 @@ public class PhotoLibraryService {
                     queryResult.get("id") + ";" +
                             queryResult.get("nativeURL"));
 
-            queryResult.remove("nativeURL"); // Not needed
+            //queryResult.remove("nativeURL"); // Not needed
 
             String albumId = queryResult.getString("albumId");
             queryResult.remove("albumId");
@@ -432,7 +432,7 @@ public class PhotoLibraryService {
                     queryResult.get("id") + ";" +
                             queryResult.get("nativeURL"));
 
-            queryResult.remove("nativeURL"); // Not needed
+            //queryResult.remove("nativeURL"); // Not needed
 
             String albumId = queryResult.getString("albumId");
             //queryResult.remove("albumId");
@@ -467,7 +467,7 @@ public class PhotoLibraryService {
             put("fileName", MediaStore.Audio.Media.DISPLAY_NAME);
             put("duration", MediaStore.Audio.Media.DURATION);
             put("size", MediaStore.Audio.Media.SIZE);
-            put("date.lastModificationTime", MediaStore.Audio.Media.DATE_MODIFIED);
+            put("lastModificationTime", MediaStore.Audio.Media.DATE_MODIFIED);
             put("albumId", MediaStore.Audio.AudioColumns.ALBUM_ID);
             put("nativeURL", MediaStore.MediaColumns.DATA); // will not be returned to javascript
         }};
@@ -520,7 +520,7 @@ public class PhotoLibraryService {
             put("mimeType", MediaStore.Files.FileColumns.MIME_TYPE);
             put("fileName", MediaStore.Files.FileColumns.TITLE);
             put("size", MediaStore.Files.FileColumns.SIZE);
-            put("date.lastModificationTime", MediaStore.Files.FileColumns.DATE_MODIFIED);
+            put("lastModificationTime", MediaStore.Files.FileColumns.DATE_MODIFIED);
             put("nativeURL", MediaStore.MediaColumns.DATA); // will not be returned to javascript
         }};
 
