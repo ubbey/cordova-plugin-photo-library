@@ -367,6 +367,10 @@ final class PhotoLibraryService {
     
     
     func getLibraryItem(_ itemId: String, mimeType: String, completion: @escaping (_ base64: String?) -> Void) {
+        self.fetchOptions.predicate = NSPredicate(format: "mediaType == %d || mediaType == %d",
+                                             PHAssetMediaType.image.rawValue,
+                                             PHAssetMediaType.video.rawValue)
+                                             
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [itemId], options: self.fetchOptions)
         if fetchResult.count == 0 {
             completion(nil)
