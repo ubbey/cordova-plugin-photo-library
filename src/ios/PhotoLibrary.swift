@@ -161,7 +161,7 @@ import Foundation
                         status: CDVCommandStatus_ERROR,
                         messageAs: "Could not fetch the image")
 
-                self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
+                self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
             }
 
         }
@@ -197,18 +197,18 @@ import Foundation
             let service = PhotoLibraryService.instance
             let info = command.arguments[0] as! NSDictionary
             let mime_type = info["mimeType"] as! String
-            let path = command.arguments[1] as! String
-            service.getLibraryItemInPackage(info["id"] as! String, mimeType: mime_type, path as! String, completion: { (result: Boolean?) in
-                self.returnPictureDataInPackage(callbackId: command.callbackId, result: result, mimeType: mime_type, path: path)
+            let storePath = command.arguments[1] as! String
+            service.getLibraryItemInPackage(info["id"] as! String, mimeType: mime_type, storePath: storePath, completion: { (ret: Int?) in
+                self.returnPictureDataInPackage(callbackId: command.callbackId, result: ret, mimeType: mime_type, storePath: storePath)
             })
         }
     }    
 
-    func returnPictureDataInPackage(callbackId : String, result: Boolean?, mimeType: String?, path: String?) {
-        let pluginResult = (result == true) ?
+    func returnPictureDataInPackage(callbackId : String, result: Int?, mimeType: String?, storePath: String?) {
+        let pluginResult = (result == 1) ?
             CDVPluginResult(
                 status: CDVCommandStatus_OK,
-                messageAsMultipart: [path!, mimeType!])
+                messageAsMultipart: [storePath!, mimeType!])
             :
             CDVPluginResult(
                 status: CDVCommandStatus_ERROR,
@@ -240,7 +240,7 @@ import Foundation
         service.stopCaching()
 
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
+        self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
 
     }
 
@@ -250,10 +250,10 @@ import Foundation
 
         service.requestAuthorization({
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
+            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
         }, failure: { (err) in
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: err)
-            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
+            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
         })
 
     }
@@ -278,7 +278,7 @@ import Foundation
                     self.commandDelegate!.send(pluginResult, callbackId: command.callbackId)
                 } else {
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: libraryItem as! [String: AnyObject]?)
-                    self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
+                    self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
                 }
             }
 
@@ -305,7 +305,7 @@ import Foundation
                     self.commandDelegate!.send(pluginResult, callbackId: command.callbackId)
                 } else {
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-                    self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
+                    self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
                 }
             }
 

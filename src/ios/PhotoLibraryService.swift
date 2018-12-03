@@ -41,12 +41,12 @@ final class PhotoLibraryService {
     let mimeTypes = [
         "flv":  "video/x-flv",
         "mp4":  "video/mp4",
-        "m3u8":	"application/x-mpegURL",
+        "m3u8": "application/x-mpegURL",
         "ts":   "video/MP2T",
-        "3gp":	"video/3gpp",
-        "mov":	"video/quicktime",
-        "avi":	"video/x-msvideo",
-        "wmv":	"video/x-ms-wmv",
+        "3gp":  "video/3gpp",
+        "mov":  "video/quicktime",
+        "avi":  "video/x-msvideo",
+        "wmv":  "video/x-ms-wmv",
         "gif":  "image/gif",
         "jpg":  "image/jpeg",
         "jpeg": "image/jpeg",
@@ -134,7 +134,7 @@ final class PhotoLibraryService {
 
 
         
-	// TODO: do not restart caching on multiple calls
+    // TODO: do not restart caching on multiple calls
 //        if fetchResult.count > 0 {
 //
 //            var assets = [PHAsset]()
@@ -428,14 +428,14 @@ final class PhotoLibraryService {
         })
     }
 
-    func getLibraryItemInPackage(_ itemId: String, mimeType: String, storePath: String, completion: @escaping (_ base64: String?) -> Void) {
+    func getLibraryItemInPackage(_ itemId: String, mimeType: String, storePath: String, completion: @escaping (_ result: Int?) -> Void) {
         self.fetchOptions.predicate = NSPredicate(format: "mediaType == %d || mediaType == %d",
                                              PHAssetMediaType.image.rawValue,
                                              PHAssetMediaType.video.rawValue)
                                              
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [itemId], options: self.fetchOptions)
         if fetchResult.count == 0 {
-            completion(false)
+            completion(0)
             return
         }
         
@@ -452,13 +452,20 @@ final class PhotoLibraryService {
                     (imageData: Data?, dataUTI: String?, orientation: UIImageOrientation, info: [AnyHashable: Any]?) in
 
                     if(imageData == nil) {
-                        completion(false)
+                        completion(0)
                     }
                     else {
                         //let file_url:URL = info!["PHImageFileURLKey"] as! URL
                         //let mime_type = self.mimeTypes[file_url.pathExtension.lowercased()]
-                        imageData.write(storePath);
-                        completion(true)
+                        do {
+                            let urlImage = URL.init(fileURLWithPath: storePath, isDirectory: false)
+                            try imageData?.write(to: urlImage)
+                            completion(1)
+                        }
+                        catch let error as NSError {
+                            print(" from backup \(error)");
+                            completion(0)
+                        }
                     }
                 }
             }
@@ -473,20 +480,21 @@ final class PhotoLibraryService {
                         let video_data = try Data(contentsOf: url)
                         //let video_base64 = video_data.base64EncodedString()
 //                        let mime_type = self.mimeTypes[url.pathExtension.lowercased()]
-                        video_data.write(storePath);
-                        completion(true)
+                        let urlVideo = URL.init(fileURLWithPath: storePath, isDirectory: false)
+                        try video_data.write(to: urlVideo);
+                        completion(1)
                     }
                     catch _ {
-                        completion(false)
+                        completion(0)
                     }
                 })
             }
             else if(mediaType == "audio") {
                 // TODO:
-                completion(false)
+                completion(0)
             }
             else {
-                completion(false) // unknown
+                completion(0) // unknown
             }
             
         })
@@ -867,5 +875,4 @@ final class PhotoLibraryService {
         })
 
     }
-
 }

@@ -242,9 +242,10 @@ photoLibrary.getLibraryItemInPackage = function(libraryItem, path, success, erro
     options = {};
   }
   console.log("写入路径:" + path)
+  path = path.replace(/^file:\/\//, '');
   cordova.exec(
-    function(mimeType) {
-      success(mimeType);
+    function(path) {
+               success('file://' + path);
     },
     error,
     'PhotoLibrary',
