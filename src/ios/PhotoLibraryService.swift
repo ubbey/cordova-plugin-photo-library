@@ -427,7 +427,70 @@ final class PhotoLibraryService {
             
         })
     }
-    
+
+    func getLibraryItemInPackage(_ itemId: String, mimeType: String, storePath: String, completion: @escaping (_ base64: String?) -> Void) {
+        self.fetchOptions.predicate = NSPredicate(format: "mediaType == %d || mediaType == %d",
+                                             PHAssetMediaType.image.rawValue,
+                                             PHAssetMediaType.video.rawValue)
+                                             
+        let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [itemId], options: self.fetchOptions)
+        if fetchResult.count == 0 {
+            completion(false)
+            return
+        }
+        
+        // TODO: data should be returned as chunks, even for pics.
+        // a massive data object might increase RAM usage too much, and iOS will then kill the app.
+        fetchResult.enumerateObjects({
+            (obj: AnyObject, idx: Int, stop: UnsafeMutablePointer<ObjCBool>) -> Void in
+            let asset = obj as! PHAsset
+            
+            let mediaType = mimeType.components(separatedBy: "/")[0] 
+            
+            if(mediaType == "image") {
+                PHImageManager.default().requestImageData(for: asset, options: self.imageRequestOptions) {
+                    (imageData: Data?, dataUTI: String?, orientation: UIImageOrientation, info: [AnyHashable: Any]?) in
+
+                    if(imageData == nil) {
+                        completion(false)
+                    }
+                    else {
+                        //let file_url:URL = info!["PHImageFileURLKey"] as! URL
+                        //let mime_type = self.mimeTypes[file_url.pathExtension.lowercased()]
+                        imageData.write(storePath);
+                        completion(true)
+                    }
+                }
+            }
+            else if(mediaType == "video") {
+                
+                PHImageManager.default().requestAVAsset(forVideo: asset, options: nil, resultHandler: { (avAsset: AVAsset?, avAudioMix: AVAudioMix?, info: [AnyHashable : Any]?) in
+                    
+                    let video_asset = avAsset as! AVURLAsset
+                    let url = URL(fileURLWithPath: video_asset.url.relativePath)
+                    
+                    do {
+                        let video_data = try Data(contentsOf: url)
+                        //let video_base64 = video_data.base64EncodedString()
+//                        let mime_type = self.mimeTypes[url.pathExtension.lowercased()]
+                        video_data.write(storePath);
+                        completion(true)
+                    }
+                    catch _ {
+                        completion(false)
+                    }
+                })
+            }
+            else if(mediaType == "audio") {
+                // TODO:
+                completion(false)
+            }
+            else {
+                completion(false) // unknown
+            }
+            
+        })
+    }    
     
     func getVideo(_ videoId: String, completion: @escaping (_ result: PictureData?) -> Void) {
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [videoId], options: self.fetchOptions)

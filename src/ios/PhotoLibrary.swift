@@ -184,7 +184,39 @@ import Foundation
             })
         }
     }
-    
+
+    func getLibraryItemInPackage(_ command: CDVInvokedUrlCommand) {
+        concurrentQueue.async {
+            
+            if !PhotoLibraryService.hasPermission() {
+                let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: PhotoLibraryService.PERMISSION_ERROR)
+                self.commandDelegate!.send(pluginResult, callbackId: command.callbackId)
+                return
+            }
+            
+            let service = PhotoLibraryService.instance
+            let info = command.arguments[0] as! NSDictionary
+            let mime_type = info["mimeType"] as! String
+            let path = command.arguments[1] as! String
+            service.getLibraryItemInPackage(info["id"] as! String, mimeType: mime_type, path as! String, completion: { (result: Boolean?) in
+                self.returnPictureDataInPackage(callbackId: command.callbackId, result: result, mimeType: mime_type, path: path)
+            })
+        }
+    }    
+
+    func returnPictureDataInPackage(callbackId : String, result: Boolean?, mimeType: String?, path: String?) {
+        let pluginResult = (result == true) ?
+            CDVPluginResult(
+                status: CDVCommandStatus_OK,
+                messageAsMultipart: [path!, mimeType!])
+            :
+            CDVPluginResult(
+                status: CDVCommandStatus_ERROR,
+                messageAs: "Could not fetch the image")
+        
+        self.commandDelegate!.send(pluginResult, callbackId: callbackId)
+
+    }
     
     func returnPictureData(callbackId : String, base64: String?, mimeType: String?) {
         let pluginResult = (base64 != nil) ?

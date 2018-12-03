@@ -236,6 +236,23 @@ photoLibrary.getLibraryItem = function(libraryItem, success, error, options) {
 
 };
 
+photoLibrary.getLibraryItemInPackage = function(libraryItem, path, success, error, options) {
+
+  if (!options) {
+    options = {};
+  }
+  console.log("写入路径:" + path)
+  cordova.exec(
+    function(mimeType) {
+      success(mimeType);
+    },
+    error,
+    'PhotoLibrary',
+    'getLibraryItemInPackage', [libraryItem, path, options]
+  );
+
+};
+
 photoLibrary.getLibraryItemBinary = function(libraryItem, success, error, options) {
 
   if (!options) {
