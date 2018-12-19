@@ -538,17 +538,29 @@ public class PhotoLibraryService {
         long chunkStartTime = SystemClock.elapsedRealtime();
         int chunkNum = 0;
 
+        HashSet<String> set = new HashSet<String>();
         for (int i=0; i<queryResults.size(); i++) {
             JSONObject queryResult = queryResults.get(i);
+            String url = queryResult.getString("nativeURL");
+            int size = Integer.parseInt(queryResult.getString("size"));
+            File file = new File(url);
+            if(!file.exists() || size == 0) {
+                //删除不存在的文件数据或者大小为0的
+            } else {
+                if(set.contains(url)) {
+                    //重复文件
+                } else {
+                    set.add(url);
+                    // photoId is in format "imageid;imageurl"
+                    queryResult.put("id",
+                            queryResult.get("id") + ";" +
+                                    queryResult.get("nativeURL"));
 
-            // photoId is in format "imageid;imageurl"
-            queryResult.put("id",
-                    queryResult.get("id") + ";" +
-                            queryResult.get("nativeURL"));
+                    queryResult.remove("nativeURL"); // Not needed
 
-            queryResult.remove("nativeURL"); // Not needed
-
-            chunk.add(queryResult);
+                    chunk.add(queryResult);
+                }
+            }
 
             if (i == queryResults.size() - 1) { // Last item
                 completion.run(chunk, chunkNum, true);
