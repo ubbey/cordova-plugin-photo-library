@@ -42,6 +42,7 @@ import Foundation
             let includeCloudData = options["includeCloudData"] as! Bool
             let includeVideos = options["includeVideos"] as! Bool
             let includeImages = options["includeImages"] as! Bool
+            let maxItems = options["maxItems"] as! Int
             
             func createResult (library: [NSDictionary], chunkNum: Int, isLastChunk: Bool) -> [String: AnyObject] {
                 let result: NSDictionary = [
@@ -60,7 +61,8 @@ import Foundation
                                                                   includeImages: includeImages,
                                                                   includeAlbumData: includeAlbumData,
                                                                   includeCloudData: includeCloudData,
-                                                                  includeVideos: includeVideos)
+                                                                  includeVideos: includeVideos,
+                                                                  maxItems: maxItems)
 
             service.getLibrary(getLibraryOptions,
                 completion: { (library, chunkNum, isLastChunk) in
@@ -161,7 +163,7 @@ import Foundation
                         status: CDVCommandStatus_ERROR,
                         messageAs: "Could not fetch the image")
 
-                self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
+                self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
             }
 
         }
@@ -184,7 +186,8 @@ import Foundation
             })
         }
     }
-
+    
+    
     func getLibraryItemInPackage(_ command: CDVInvokedUrlCommand) {
         concurrentQueue.async {
             
@@ -240,7 +243,7 @@ import Foundation
         service.stopCaching()
 
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
+        self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
 
     }
 
@@ -250,10 +253,10 @@ import Foundation
 
         service.requestAuthorization({
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
+            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
         }, failure: { (err) in
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: err)
-            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
+            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
         })
 
     }
@@ -278,7 +281,7 @@ import Foundation
                     self.commandDelegate!.send(pluginResult, callbackId: command.callbackId)
                 } else {
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: libraryItem as! [String: AnyObject]?)
-                    self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
+                    self.commandDelegate!.send(pluginResult, callbackId: command.callbackId	)
                 }
             }
 
@@ -298,14 +301,15 @@ import Foundation
 
             let url = command.arguments[0] as! String
             let album = command.arguments[1] as! String
+            
 
-            service.saveVideo(url, album: album) { (url: URL?, error: String?) in
+            service.saveVideo(url, album: album) { (_ libraryItem: NSDictionary?, error: String?) in
                 if (error != nil) {
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: error)
                     self.commandDelegate!.send(pluginResult, callbackId: command.callbackId)
                 } else {
-                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-                    self.commandDelegate!.send(pluginResult, callbackId: command.callbackId )
+                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: libraryItem as! [String: AnyObject]?)
+                    self.commandDelegate!.send(pluginResult, callbackId: command.callbackId    )
                 }
             }
 
