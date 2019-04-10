@@ -62,13 +62,15 @@ public class PhotoLibrary extends CordovaPlugin {
               final int itemsInChunk = options.getInt("itemsInChunk");
               final double chunkTimeSec = options.getDouble("chunkTimeSec");
               final boolean includeAlbumData = options.getBoolean("includeAlbumData");
+              final String mediaType = options.getString("mediaType");
+              final String whereClause = options.getString("whereClause");
 
               if (!cordova.hasPermission(READ_EXTERNAL_STORAGE)) {
                 callbackContext.error(service.PERMISSION_ERROR);
                 return;
               }
 
-              PhotoLibraryGetLibraryOptions getLibraryOptions = new PhotoLibraryGetLibraryOptions(itemsInChunk, chunkTimeSec, includeAlbumData);
+              PhotoLibraryGetLibraryOptions getLibraryOptions = new PhotoLibraryGetLibraryOptions(itemsInChunk, chunkTimeSec, includeAlbumData, mediaType, whereClause);
 
               service.getLibrary(getContext(), getLibraryOptions, new PhotoLibraryService.ChunkResultRunnable() {
                 @Override
@@ -104,8 +106,9 @@ public class PhotoLibrary extends CordovaPlugin {
                 callbackContext.error(service.PERMISSION_ERROR);
                 return;
               }
-
-              ArrayList<JSONObject> albums = service.getAlbums(getContext());
+              final JSONObject options = args.optJSONObject(0);
+              final String mediaType = options.getString("mediaType");
+              ArrayList<JSONObject> albums = service.getAlbums(mediaType, getContext());
 
               callbackContext.success(createGetAlbumsResult(albums));
 

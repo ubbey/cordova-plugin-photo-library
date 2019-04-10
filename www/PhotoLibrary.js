@@ -19,6 +19,8 @@ photoLibrary.getLibrary = function (success, error, options) {
   }
 
   options = {
+    mediaType: options.mediaType || 'image',
+    whereClause: options.whereClause || '',
     thumbnailWidth: options.thumbnailWidth || defaultThumbnailWidth,
     thumbnailHeight: options.thumbnailHeight || defaultThumbnailHeight,
     quality: options.quality || defaultQuality,

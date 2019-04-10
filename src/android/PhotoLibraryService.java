@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.TimeZone;
+import java.util.HashSet;
 
 public class PhotoLibraryService {
 
@@ -68,20 +69,34 @@ public class PhotoLibraryService {
   public void getLibrary(Context context, PhotoLibraryGetLibraryOptions options, ChunkResultRunnable completion) throws JSONException {
 
     String whereClause = "";
-    queryLibrary(context, options.itemsInChunk, options.chunkTimeSec, options.includeAlbumData, whereClause, completion);
+    queryLibrary(context, options.itemsInChunk, options.chunkTimeSec, options.includeAlbumData, options.mediaType, options.whereClause, completion);
 
   }
 
-  public ArrayList<JSONObject> getAlbums(Context context) throws JSONException {
+  public ArrayList<JSONObject> getAlbums(String mediaType, Context context) throws JSONException {
 
     // All columns here: https://developer.android.com/reference/android/provider/MediaStore.Images.ImageColumns.html,
     // https://developer.android.com/reference/android/provider/MediaStore.MediaColumns.html
-    JSONObject columns = new JSONObject() {{
-      put("id", MediaStore.Images.ImageColumns.BUCKET_ID);
-      put("title", MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
-    }};
+    JSONObject columns;
+    Uri url;
+    String sort;
+    if (mediaType.equals("image")) {
+        columns = new JSONObject() {{
+            put("id", MediaStore.Images.ImageColumns.BUCKET_ID);
+            put("title", MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
+        }};
+        url = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        sort = MediaStore.Images.Media.DEFAULT_SORT_ORDER;
+    } else {
+        columns = new JSONObject() {{
+            put("id", MediaStore.Video.VideoColumns.BUCKET_ID);
+            put("title", MediaStore.Video.VideoColumns.BUCKET_DISPLAY_NAME);
+        }};
+        url = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        sort = MediaStore.Video.Media.DEFAULT_SORT_ORDER;
+    }
 
-    final ArrayList<JSONObject> queryResult = queryContentProvider(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, "1) GROUP BY 1,(2");
+    final ArrayList<JSONObject> queryResult = queryContentProvider(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, "1) GROUP BY 1,(2", null, sort);
 
     return queryResult;
 
@@ -264,7 +279,7 @@ public class PhotoLibraryService {
 
   private Pattern dataURLPattern = Pattern.compile("^data:(.+?)/(.+?);base64,");
 
-  private ArrayList<JSONObject> queryContentProvider(Context context, Uri collection, JSONObject columns, String whereClause) throws JSONException {
+  private ArrayList<JSONObject> queryContentProvider(Context context, Uri collection, JSONObject columns, String whereClause, String[] selectionArgs, String order) throws JSONException {
 
     final ArrayList<String> columnNames = new ArrayList<String>();
     final ArrayList<String> columnValues = new ArrayList<String>();
@@ -278,12 +293,12 @@ public class PhotoLibraryService {
       columnValues.add("" + columns.getString(column));
     }
 
-    final String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
+    final String sortOrder = order + " DESC";
 
     final Cursor cursor = context.getContentResolver().query(
       collection,
       columnValues.toArray(new String[columns.length()]),
-      whereClause, null, sortOrder);
+      whereClause, selectionArgs, sortOrder);
 
     final ArrayList<JSONObject> buffer = new ArrayList<JSONObject>();
 
@@ -560,76 +575,19 @@ public class PhotoLibraryService {
         }
     }
   private void queryLibrary(Context context, String whereClause, ChunkResultRunnable completion) throws JSONException {
-    queryLibrary(context, 0, 0, false, whereClause, completion);
+    queryLibrary(context, 0, 0, false, "image", whereClause, completion);
   }
-
-  private void queryLibrary(Context context, int itemsInChunk, double chunkTimeSec, boolean includeAlbumData, String whereClause, ChunkResultRunnable completion)
-    throws JSONException {
-
-    // All columns here: https://developer.android.com/reference/android/provider/MediaStore.Images.ImageColumns.html,
-    // https://developer.android.com/reference/android/provider/MediaStore.MediaColumns.html
-    JSONObject columns = new JSONObject() {{
-      put("int.id", MediaStore.Images.Media._ID);
-      put("fileName", MediaStore.Images.ImageColumns.DISPLAY_NAME);
-      put("int.width", MediaStore.Images.ImageColumns.WIDTH);
-      put("int.height", MediaStore.Images.ImageColumns.HEIGHT);
-      put("albumId", MediaStore.Images.ImageColumns.BUCKET_ID);
-      put("date.creationDate", MediaStore.Images.ImageColumns.DATE_TAKEN);
-      put("float.latitude", MediaStore.Images.ImageColumns.LATITUDE);
-      put("float.longitude", MediaStore.Images.ImageColumns.LONGITUDE);
-      put("nativeURL", MediaStore.MediaColumns.DATA); // will not be returned to javascript
-    }};
-
-    final ArrayList<JSONObject> queryResults = queryContentProvider(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, whereClause);
-
-    ArrayList<JSONObject> chunk = new ArrayList<JSONObject>();
-
-    long chunkStartTime = SystemClock.elapsedRealtime();
-    int chunkNum = 0;
-
-    for (int i=0; i<queryResults.size(); i++) {
-      JSONObject queryResult = queryResults.get(i);
-
-      // swap width and height if needed
-      try {
-        int orientation = getImageOrientation(new File(queryResult.getString("nativeURL")));
-        if (isOrientationSwapsDimensions(orientation)) { // swap width and height
-          int tempWidth = queryResult.getInt("width");
-          queryResult.put("width", queryResult.getInt("height"));
-          queryResult.put("height", tempWidth);
-        }
-      } catch (IOException e) {
-        // Do nothing
+  private void queryLibrary(Context context, int itemsInChunk, double chunkTimeSec, boolean includeAlbumData, String mediaType, String whereClause, ChunkResultRunnable completion)
+          throws JSONException {
+      if(mediaType.equals("image")) {
+          queryImage(context, itemsInChunk, chunkTimeSec, includeAlbumData, whereClause, completion);
+      } else if(mediaType.equals("video")) {
+          queryVideo(context, itemsInChunk, chunkTimeSec, includeAlbumData, whereClause, completion);
+      } else if(mediaType.equals("audio")) {
+          queryAudio(context, itemsInChunk, chunkTimeSec, includeAlbumData, whereClause, completion);
+      } else if(mediaType.equals("document")) {
+          queryDocument(context, itemsInChunk, chunkTimeSec, includeAlbumData, whereClause, completion);
       }
-
-      // photoId is in format "imageid;imageurl"
-      queryResult.put("id",
-          queryResult.get("id") + ";" +
-          queryResult.get("nativeURL"));
-
-      queryResult.remove("nativeURL"); // Not needed
-
-      String albumId = queryResult.getString("albumId");
-      queryResult.remove("albumId");
-      if (includeAlbumData) {
-        JSONArray albumsArray = new JSONArray();
-        albumsArray.put(albumId);
-        queryResult.put("albumIds", albumsArray);
-      }
-
-      chunk.add(queryResult);
-
-      if (i == queryResults.size() - 1) { // Last item
-        completion.run(chunk, chunkNum, true);
-      } else if ((itemsInChunk > 0 && chunk.size() == itemsInChunk) || (chunkTimeSec > 0 && (SystemClock.elapsedRealtime() - chunkStartTime) >= chunkTimeSec*1000)) {
-        completion.run(chunk, chunkNum, false);
-        chunkNum += 1;
-        chunk = new ArrayList<JSONObject>();
-        chunkStartTime = SystemClock.elapsedRealtime();
-      }
-
-    }
-
   }
 
   private String queryMimeType(Context context, int imageId) {
