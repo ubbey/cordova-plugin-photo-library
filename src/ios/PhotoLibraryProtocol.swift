@@ -6,6 +6,7 @@ import Foundation
     static let DEFAULT_WIDTH = "512"
     static let DEFAULT_HEIGHT = "384"
     static let DEFAULT_QUALITY = "0.5"
+    static let DEFAULT_TYPE = "image"
     
     lazy var concurrentQueue: OperationQueue = {
         var queue = OperationQueue()
@@ -75,8 +76,15 @@ import Foundation
                         return
                     }
                     
+                    let typeStr = queryItems?.filter({$0.name == "type"}).first?.value ?? PhotoLibraryProtocol.DEFAULT_TYPE
+                    let type = String(typeStr)
+                    if type.isEmpty {
+                        self.sendErrorResponse(404, error: "Incorrect 'type' query parameter")
+                        return
+                    }
+                    
                     concurrentQueue.addOperation {
-                        service.getThumbnail(photoId!, thumbnailWidth: width!, thumbnailHeight: height!, quality: quality!) { (imageData) in
+                        service.getThumbnail(photoId!, thumbnailWidth: width!, thumbnailHeight: height!, quality: quality!, type: type) { (imageData) in
                             if (imageData == nil) {
                                 self.sendErrorResponse(404, error: PhotoLibraryService.PERMISSION_ERROR)
                                 return
