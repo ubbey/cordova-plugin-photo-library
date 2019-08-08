@@ -214,8 +214,6 @@ public class PhotoLibraryService {
 		}
 
 		return new PictureAsStream(is, mimeType);
-
-<<<<<<< HEAD
 	}
 
 	public PictureData getPhoto(Context context, String photoId) throws IOException {
